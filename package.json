@@ -1,13 +1,27 @@
-{
-    "name": "my-node-app",
-    "version": "1.0.0",
-    "description": "My Node.js application",
-    "main": "index.js",
-    "dependencies": {
-      "express": "^4.17.1"
-    },
-    "scripts": {
-      "start": "node index.js"
-    }
+// app.js
+
+const express = require('express');
+const { Pool } = require('pg');
+
+const app = express();
+const pool = new Pool({
+  user: 'postgres',
+  host: 'db',  // hostname of the PostgreSQL container in Docker Compose
+  database: 'mydb',
+  password: 'password',
+  port: 5432,
+});
+
+app.get('/', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM mytable');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-  
+});
+
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
+});
